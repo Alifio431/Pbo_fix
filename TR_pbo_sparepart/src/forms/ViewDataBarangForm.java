@@ -1,3 +1,5 @@
+//admin
+//form untuk melihat data barang
 package forms;
 
 import javax.swing.*;

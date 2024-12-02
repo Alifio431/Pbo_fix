@@ -1,3 +1,5 @@
+//admin
+//digunakan untuk melihat data laporan
 package forms;
 
 import javax.swing.*;

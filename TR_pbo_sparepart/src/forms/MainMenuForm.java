@@ -1,3 +1,5 @@
+//admin
+//main menu 
 package forms;
 
 import javax.swing.*;

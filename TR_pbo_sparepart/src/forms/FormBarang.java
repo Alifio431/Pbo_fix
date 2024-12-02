@@ -1,3 +1,5 @@
+//admin
+//form input barang
 package forms;
 
 import javax.swing.*;
