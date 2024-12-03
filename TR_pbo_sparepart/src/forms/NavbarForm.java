@@ -1,478 +1,292 @@
 package forms;
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableCellEditor;
+import java.sql.*;
 
 public class NavbarForm extends JFrame {
-    private JPanel cartPanel;
     private JTextField txtSearch;
     private JComboBox<String> comboFilter;
-    private JButton btnSearch, btnReset;
+    private JButton btnSearch, btnReset, btnBeli, btnKembali;
     private JTable tableResults, tableCart;
-    private DefaultTableModel tableModel, cartModel;
+    private DefaultTableModel tableModelResults, tableModelCart;
     private JLabel lblTotalHarga;
     private static String username;
-    private JButton btnBeli;
-    
-        public NavbarForm(String username) {
-            this.username = username;
-            setTitle("Gudang Barang - Navbar");
-            setSize(900, 600);
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            setLayout(new BorderLayout());
-    
-            // Panel untuk navbar (search bar + filter)
-            JPanel navbarPanel = new JPanel();
-            navbarPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-    
-            JLabel lblSearch = new JLabel("Search:");
-            txtSearch = new JTextField(15);
-    
-            JLabel lblFilter = new JLabel("Filter by:");
-            comboFilter = new JComboBox<>(new String[]{"Nama", "Merk", "Kategori", "Deskripsi"});
-    
-            btnSearch = new JButton("Search");
-            btnReset = new JButton("Reset");
-    
-            navbarPanel.add(lblSearch);
-            navbarPanel.add(txtSearch);
-            navbarPanel.add(lblFilter);
-            navbarPanel.add(comboFilter);
-            navbarPanel.add(btnSearch);
-            navbarPanel.add(btnReset);
-    
-            // Tabel untuk menampilkan hasil pencarian
-            tableModel = new DefaultTableModel(new String[]{"ID Barang", "Nama", "Merk", "Kategori", "Harga", "Stok", "Deskripsi"}, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false; // Membuat tabel tidak dapat diedit
-                }
-            };
-            tableResults = new JTable(tableModel);
-    
-            // Adjust column widths for results table
-            tableResults.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID Barang
-            tableResults.getColumnModel().getColumn(1).setPreferredWidth(150); // Nama
-            tableResults.getColumnModel().getColumn(2).setPreferredWidth(100); // Merk
-            tableResults.getColumnModel().getColumn(3).setPreferredWidth(100); // Kategori
-            tableResults.getColumnModel().getColumn(4).setPreferredWidth(80);  // Harga
-            tableResults.getColumnModel().getColumn(5).setPreferredWidth(50);  // Stok
-            tableResults.getColumnModel().getColumn(6).setPreferredWidth(200); // Deskripsi
-    
-            // ScrollPane untuk tabel utama
-            JScrollPane scrollPaneResults = new JScrollPane(tableResults);
-    
-            // Tabel untuk menampilkan barang yang diklik (keranjang belanja)
-            cartModel = new DefaultTableModel(new String[]{"ID Barang", "Nama", "Merk", "Kategori", "Harga", "Quantity", "Action"}, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return column == 5 || column == 6; // Kolom Quantity dan Action dapat diedit
-                }
-            };
-            tableCart = new JTable(cartModel);
-    
-            // Adjust column widths for cart table
-            tableCart.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID Barang
-            tableCart.getColumnModel().getColumn(1).setPreferredWidth(150); // Nama
-            tableCart.getColumnModel().getColumn(2).setPreferredWidth(100); // Merk
-            tableCart.getColumnModel().getColumn(3).setPreferredWidth(100); // Kategori
-            tableCart.getColumnModel().getColumn(4).setPreferredWidth(80);  // Harga
-            tableCart.getColumnModel().getColumn(5).setPreferredWidth(100); // Quantity
-            tableCart.getColumnModel().getColumn(6).setPreferredWidth(80);  // Action
-    
-            // Increase row height
-            tableCart.setRowHeight(40);
-            tableResults.setRowHeight(25);
-    
-            // Custom renderer dan editor untuk kolom Action
-            tableCart.getColumnModel().getColumn(6).setCellRenderer(new ButtonRenderer());
-            tableCart.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor());
-    
-            // Tambahkan renderer/editor untuk kolom Quantity
-            tableCart.getColumnModel().getColumn(5).setCellRenderer(new QuantityRenderer());
-            tableCart.getColumnModel().getColumn(5).setCellEditor(new QuantityEditor());
-    
-            // ScrollPane untuk tabel keranjang
-            JScrollPane scrollPaneCart = new JScrollPane(tableCart);
-    
-            // Panel bawah untuk label keranjang dan total harga
-            JPanel cartPanel = new JPanel();
-            cartPanel.setLayout(new BorderLayout());
-    
-            JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            lblTotalHarga = new JLabel("Total Harga: Rp 0");
-            bottomPanel.add(lblTotalHarga);
-    
-            JLabel lblCart = new JLabel("Keranjang Belanja:");
-            cartPanel.add(lblCart, BorderLayout.NORTH);
-            cartPanel.add(scrollPaneCart, BorderLayout.CENTER);
-            cartPanel.add(bottomPanel, BorderLayout.SOUTH);
-    
-            add(navbarPanel, BorderLayout.NORTH);
-            add(scrollPaneResults, BorderLayout.CENTER);
-            add(cartPanel, BorderLayout.SOUTH);
 
-            JButton btnKembali = new JButton("Kembali");
-            navbarPanel.add(btnKembali);
+    public NavbarForm(String username) {
+        this.username = username;
+        initializeComponents();
+        setupLayout();
+        setupEventListeners();
+        loadInitialData();
+    }
 
-            // Add action listener for the Kembali button
-            btnKembali.addActionListener(e -> {
-                dispose();
-                new MainMenuBuyer(username).setVisible(true);
-            });
+    private void initializeComponents() {
+        setTitle("Gudang Barang - Navbar");
+        setSize(900, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-            btnBeli = new JButton("Beli");
-            navbarPanel.add(btnBeli);
-    
-            // Event tombol search
-            btnSearch.addActionListener(e -> performSearch());
-    
-            // Event tombol reset
-            btnReset.addActionListener(e -> resetSearch());
+        // Search components
+        txtSearch = new JTextField(15);
+        comboFilter = new JComboBox<>(new String[]{"Nama", "Merk", "Kategori", "Deskripsi"});
+        btnSearch = new JButton("Search");
+        btnReset = new JButton("Reset");
 
-            
-    
-            // Event klik pada tabel utama untuk menambah ke keranjang
-            tableResults.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    int selectedRow = tableResults.getSelectedRow();
-                    if (selectedRow != -1) { // Pastikan ada baris yang dipilih
-                        addToCart(selectedRow);
-                    }
-                }
-            });
-
-            btnBeli.addActionListener(e -> {
-                try {
-                    // Insert cart items into the database
-                    insertToHistoryTransaksi();
-                    insertToLaporanBarang();
-                    
-                    // Show success message
-                    JOptionPane.showMessageDialog(this, "Pembelian berhasil! Menunggu untuk melanjutkan.", "Pembelian Sukses", JOptionPane.INFORMATION_MESSAGE);
-            
-                    // After the alert is closed, navigate to MainMenuBuyer
-                    dispose();  // Close the current NavbarForm
-                    new MainMenuBuyer(username).setVisible(true);  // Open MainMenuBuyer
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(this, "Error saat melakukan pembelian.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            });
-            
-            
-            // Load data awal (tampilkan semua data tanpa filter)
-            performSearch();
-        }
-        private void insertToHistoryTransaksi() throws SQLException {
-            String insertQuery = "INSERT INTO history_transaksi (username, id_barang, nama_barang, merk, harga, quantity, total_harga) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
-            try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
-                 PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
-        
-                // Loop through the cart items and insert each one
-                for (int i = 0; i < cartModel.getRowCount(); i++) {
-                    int idBarang = (int) cartModel.getValueAt(i, 0);
-                    String namaBarang = (String) cartModel.getValueAt(i, 1);
-                    String merk = (String) cartModel.getValueAt(i, 2);
-                    double harga = (double) cartModel.getValueAt(i, 4);
-                    int quantity = (int) cartModel.getValueAt(i, 5);
-                    double totalHarga = harga * quantity; // Calculate total harga based on quantity
-        
-                    // Set values for the prepared statement
-                    stmt.setString(1, username);  // Insert the current user's username
-                    stmt.setInt(2, idBarang);
-                    stmt.setString(3, namaBarang);
-                    stmt.setString(4, merk);
-                    stmt.setDouble(5, harga);
-                    stmt.setInt(6, quantity);  // Insert quantity
-                    stmt.setDouble(7, totalHarga);  // Insert the total price calculated
-        
-                    // Execute the insert for each cart item
-                    stmt.executeUpdate();
-                }
-        
-            }
-        }
-        
-
-        private void performSearch() {
-            String searchText = txtSearch.getText().trim();
-            String filterBy = comboFilter.getSelectedItem().toString(); // Nama, Merk, etc.
-    
-            // Mapkan nama kolom filter ke nama kolom di database
-            switch (filterBy) {
-                case "Nama":
-                    filterBy = "nama_barang";
-                    break;
-                case "Merk":
-                    filterBy = "merk";
-                    break;
-                case "Kategori":
-                    filterBy = "kategori";
-                    break;
-                case "Deskripsi":
-                    filterBy = "deskripsi_barang";
-                    break;
-                default:
-                    filterBy = "id_barang"; // Default jika ada nilai tidak valid
-            }
-    
-            try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
-                 PreparedStatement stmt = conn.prepareStatement(
-                         "SELECT * FROM data_barang WHERE " + filterBy + " LIKE ?")) {
-    
-                stmt.setString(1, "%" + searchText + "%"); // Masukkan nilai pencarian
-                ResultSet rs = stmt.executeQuery();
-    
-                // Bersihkan data tabel
-                tableModel.setRowCount(0);
-    
-                // Tambahkan data hasil pencarian ke tabel
-                while (rs.next()) {
-                    Object[] row = {
-                            rs.getInt("id_barang"),
-                            rs.getString("nama_barang"),
-                            rs.getString("merk"),
-                            rs.getString("kategori"),
-                            rs.getDouble("harga"),
-                            rs.getInt("stok"),
-                            rs.getString("deskripsi_barang")
-                    };
-                    tableModel.addRow(row);
-                }
-    
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Gagal memuat data.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    
-        private void resetSearch() {
-            txtSearch.setText("");
-            comboFilter.setSelectedIndex(0);
-    
-            // Bersihkan data tabel dan tampilkan semua data
-            performSearch();
-        }
-    
-        private void addToCart(int selectedRow) {
-            Object idBarang = tableModel.getValueAt(selectedRow, 0);
-            Object namaBarang = tableModel.getValueAt(selectedRow, 1);
-            Object merk = tableModel.getValueAt(selectedRow, 2);
-            Object kategori = tableModel.getValueAt(selectedRow, 3);
-            Object harga = tableModel.getValueAt(selectedRow, 4);
-        
-            // Validasi jika ID Barang sudah ada di keranjang
-            for (int i = 0; i < cartModel.getRowCount(); i++) {
-                if (cartModel.getValueAt(i, 0).equals(idBarang)) {
-                    JOptionPane.showMessageDialog(this, "Barang sudah ada di keranjang.", "Info", JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-            }
-        
-            // Tambahkan ke keranjang
-            cartModel.addRow(new Object[]{idBarang, namaBarang, merk, kategori, harga, 1, "Delete"});
-            updateTotalHarga();
-        
-            SwingUtilities.invokeLater(() -> {
-                tableCart.revalidate();
-                tableCart.repaint();
-            });
-        }
-    
-        private void updateTotalHarga() {
-            int total = 0;
-            for (int i = 0; i < cartModel.getRowCount(); i++) {
-                int harga = Integer.parseInt(cartModel.getValueAt(i, 4).toString());
-                int quantity = Integer.parseInt(cartModel.getValueAt(i, 5).toString());
-                total += harga * quantity;
-            }
-            lblTotalHarga.setText("Total Harga: " + total);
-        }
-
-        // Custom renderer untuk tombol "Delete"
-        class ButtonRenderer extends JButton implements TableCellRenderer {
-            public ButtonRenderer() {
-                setOpaque(true);
-            }
-    
+        // Results Table
+        String[] resultColumns = {"ID Barang", "Nama", "Merk", "Kategori", "Harga", "Stok", "Deskripsi"};
+        tableModelResults = new DefaultTableModel(resultColumns, 0) {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, 
-                    boolean isSelected, boolean hasFocus, int row, int column) {
-                setText("Delete");
-                return this;
+            public boolean isCellEditable(int row, int column) {
+                return false;
             }
-        }
-    
-        // Custom editor untuk tombol "Delete"
-        class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
-            private JButton button;
-            private int row;
-            private JTable table;
-        
-            public ButtonEditor() {
-                button = new JButton("Delete");
-                button.addActionListener(e -> {
-                    // Use the current row from the table, not a stored row value
-                    int selectedRow = table.convertRowIndexToModel(row);
-                    deleteFromCart(selectedRow);
-                    fireEditingStopped();
-                });
-            }
-        
+        };
+        tableResults = new JTable(tableModelResults);
+        configureTableColumns(tableResults, new int[]{50, 150, 100, 100, 80, 50, 200});
+
+        // Cart Table
+        String[] cartColumns = {"ID Barang", "Nama", "Merk", "Kategori", "Harga", "Quantity", "Action"};
+        tableModelCart = new DefaultTableModel(cartColumns, 0) {
             @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                this.table = table;
-                this.row = row;
-                return button;
+            public boolean isCellEditable(int row, int column) {
+                return column == 5 || column == 6;
             }
+        };
+        tableCart = new JTable(tableModelCart);
+        configureTableColumns(tableCart, new int[]{50, 150, 100, 100, 80, 100, 80});
+        tableCart.setRowHeight(40);
+
+        // Buttons
+        btnBeli = new JButton("Beli");
+        btnKembali = new JButton("Kembali");
         
+        // Total Harga Label
+        lblTotalHarga = new JLabel("Total Harga: Rp 0.00");
+    }
+
+    private void configureTableColumns(JTable table, int[] columnWidths) {
+        for (int i = 0; i < columnWidths.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+        }
+    }
+
+    private void setupLayout() {
+        // Navbar Panel
+        JPanel navbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        navbarPanel.add(new JLabel("Search:"));
+        navbarPanel.add(txtSearch);
+        navbarPanel.add(new JLabel("Filter by:"));
+        navbarPanel.add(comboFilter);
+        navbarPanel.add(btnSearch);
+        navbarPanel.add(btnReset);
+
+        // Results Table Scroll Pane
+        JScrollPane scrollPaneResults = new JScrollPane(tableResults);
+
+        // Cart Panel
+        JPanel cartPanel = new JPanel(new BorderLayout());
+        JScrollPane scrollPaneCart = new JScrollPane(tableCart);
+        cartPanel.add(new JLabel("Keranjang Belanja:"), BorderLayout.NORTH);
+        
+        // Bottom Panel with Total and Buttons
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        totalPanel.add(lblTotalHarga);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(btnBeli);
+        buttonPanel.add(btnKembali);
+
+        bottomPanel.add(totalPanel, BorderLayout.WEST);
+        bottomPanel.add(buttonPanel, BorderLayout.EAST);
+
+        cartPanel.add(scrollPaneCart, BorderLayout.CENTER);
+        cartPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Add to main frame
+        add(navbarPanel, BorderLayout.NORTH);
+        add(scrollPaneResults, BorderLayout.CENTER);
+        add(cartPanel, BorderLayout.SOUTH);
+    }
+
+    private void setupEventListeners() {
+        // Search button
+        btnSearch.addActionListener(e -> performSearch());
+
+        // Reset button
+        btnReset.addActionListener(e -> resetSearch());
+
+        // Results table click listener
+        tableResults.addMouseListener(new MouseAdapter() {
             @Override
-            public Object getCellEditorValue() {
-                return "Delete";
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = tableResults.getSelectedRow();
+                if (selectedRow != -1) {
+                    addToCart(selectedRow);
+                }
             }
-        }
-        
-        private void deleteFromCart(int row) {
-            // Check if row is valid before removing
-            if (row >= 0 && row < cartModel.getRowCount()) {
-                cartModel.removeRow(row);
-                updateTotalHarga();
-        
-                SwingUtilities.invokeLater(() -> {
-                    tableCart.revalidate();
-                    tableCart.repaint();
-                });
-            }
-        }
-        public static void main(String[] args) {
-            SwingUtilities.invokeLater(() -> {
-                new NavbarForm(username).setVisible(true);
+        });
+
+        // Beli button
+        btnBeli.addActionListener(e -> processPurchase());
+
+        // Kembali button
+        btnKembali.addActionListener(e -> {
+            dispose();
+            new MainMenuBuyer(username).setVisible(true);
         });
     }
 
-    private void insertToLaporanBarang() throws SQLException {
-        String insertQuery = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, ?, ?, ?)";
+    private void performSearch() {
+        String searchText = txtSearch.getText().trim();
+        String filterColumn = getFilterColumn();
+
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM data_barang WHERE " + filterColumn + " LIKE ?")) {
+
+            stmt.setString(1, "%" + searchText + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            tableModelResults.setRowCount(0);
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("id_barang"),
+                    rs.getString("nama_barang"),
+                    rs.getString("merk"),
+                    rs.getString("kategori"),
+                    rs.getDouble("harga"),
+                    rs.getInt("stok"),
+                    rs.getString("deskripsi_barang")
+                };
+                tableModelResults.addRow(row);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal memuat data.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private String getFilterColumn() {
+        switch (comboFilter.getSelectedItem().toString()) {
+            case "Nama": return "nama_barang";
+            case "Merk": return "merk";
+            case "Kategori": return "kategori";
+            case "Deskripsi": return "deskripsi_barang";
+            default: return "id_barang";
+        }
+    }
+
+    private void resetSearch() {
+        txtSearch.setText("");
+        comboFilter.setSelectedIndex(0);
+        performSearch();
+    }
+
+    private void addToCart(int selectedRow) {
+        Object[] rowData = new Object[6];
+        for (int i = 0; i < 5; i++) {
+            rowData[i] = tableModelResults.getValueAt(selectedRow, i);
+        }
+        rowData[5] = 1; // Default quantity
+
+        // Check if item already exists in cart
+        for (int i = 0; i < tableModelCart.getRowCount(); i++) {
+            if (tableModelCart.getValueAt(i, 0).equals(rowData[0])) {
+                JOptionPane.showMessageDialog(this, "Barang sudah ada di keranjang.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+        }
+
+        tableModelCart.addRow(rowData);
+        updateTotalHarga();
+    }
+
+    private void updateTotalHarga() {
+        double total = 0.0;
+        for (int i = 0; i < tableModelCart.getRowCount(); i++) {
+            double harga = Double.parseDouble(tableModelCart.getValueAt(i, 4).toString());
+            int quantity = Integer.parseInt(tableModelCart.getValueAt(i, 5).toString());
+            total += harga * quantity;
+        }
+        lblTotalHarga.setText(String.format("Total Harga: Rp %.2f", total));
+    }
+
+    private void processPurchase() {
+        try {
+            insertToHistoryTransaksi();
+            insertToLaporanBarang();
+            
+            JOptionPane.showMessageDialog(this, "Pembelian berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            
+            dispose();
+            new MainMenuBuyer(username).setVisible(true);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal melakukan pembelian.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void insertToHistoryTransaksi() throws SQLException {
+        String query = "INSERT INTO history_transaksi (username, id_barang, nama_barang, merk, harga, quantity, total_harga) VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
-             PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             
-            // Loop through the cart items and insert each one into laporan_barang
-            for (int i = 0; i < cartModel.getRowCount(); i++) {
-                int idBarang = (int) cartModel.getValueAt(i, 0);
-                int stokBarang = (int) cartModel.getValueAt(i, 5); // Quantity in cart
-                double harga = (double) cartModel.getValueAt(i, 4);
-                double jumlahTransaksi = harga * stokBarang; // Total price for the item
-    
-                // Assume barang_masuk and barang_keluar are both set to the quantity in the cart
-                int barangMasuk = stokBarang;
-                int barangKeluar = 0;  // No "barang_keluar" for this context, set it to 0 or adjust as needed
-    
-                // Set values for the prepared statement
-                stmt.setInt(1, idBarang);
-                stmt.setInt(2, stokBarang);  // Stok after purchase (quantity in cart)
-                stmt.setInt(3, barangMasuk);  // Barang masuk (quantity added to stock)
-                stmt.setInt(4, barangKeluar); // Barang keluar (quantity sold, 0 for now)
-                stmt.setDouble(5, jumlahTransaksi);  // Total transaction value
-    
-                // Execute the insert for each cart item
+            for (int i = 0; i < tableModelCart.getRowCount(); i++) {
+                int idBarang = Integer.parseInt(tableModelCart.getValueAt(i, 0).toString());
+                String namaBarang = tableModelCart.getValueAt(i, 1).toString();
+                String merk = tableModelCart.getValueAt(i, 2).toString();
+                double harga = Double.parseDouble(tableModelCart.getValueAt(i, 4).toString());
+                int quantity = Integer.parseInt(tableModelCart.getValueAt(i, 5).toString());
+                double totalHarga = harga * quantity;
+
+                stmt.setString(1, username);
+                stmt.setInt(2, idBarang);
+                stmt.setString(3, namaBarang);
+                stmt.setString(4, merk);
+                stmt.setDouble(5, harga);
+                stmt.setInt(6, quantity);
+                stmt.setDouble(7, totalHarga);
+
                 stmt.executeUpdate();
             }
         }
     }
-    
-    // Custom renderer untuk kolom Quantity
-    class QuantityRenderer extends JPanel implements TableCellRenderer {
-        private JButton btnMinus, btnPlus;
-        private JLabel lblQuantity;
 
-        public QuantityRenderer() {
-            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
-            btnMinus = new JButton("<");
-            btnPlus = new JButton(">");
-            lblQuantity = new JLabel("1");
+    private void insertToLaporanBarang() throws SQLException {
+        String query = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            for (int i = 0; i < tableModelCart.getRowCount(); i++) {
+                int idBarang = Integer.parseInt(tableModelCart.getValueAt(i, 0).toString());
+                int stokBarang = Integer.parseInt(tableModelCart.getValueAt(i, 5).toString());
+                double harga = Double.parseDouble(tableModelCart.getValueAt(i, 4).toString());
+                double jumlahTransaksi = harga * stokBarang;
 
-            // Set button and label sizes
-            btnMinus.setPreferredSize(new Dimension(50, 25));
-            btnPlus.setPreferredSize(new Dimension(50, 25));
-            lblQuantity.setPreferredSize(new Dimension(30, 25));
+                stmt.setInt(1, idBarang);
+                stmt.setInt(2, stokBarang);
+                stmt.setInt(3, stokBarang);
+                stmt.setInt(4, 0);
+                stmt.setDouble(5, jumlahTransaksi);
 
-            add(btnMinus);
-            add(lblQuantity);
-            add(btnPlus);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            lblQuantity.setText(value.toString());
-            return this;
+                stmt.executeUpdate();
+            }
         }
     }
 
-    // Custom editor untuk kolom Quantity
-    class QuantityEditor extends DefaultCellEditor {
-        private JButton btnMinus, btnPlus;
-        private JLabel lblQuantity;
-        private JPanel panel;
-        private int rowToEdit;
+    private void loadInitialData() {
+        performSearch(); // Load all data initially
+    }
 
-        public QuantityEditor() {
-            super(new JTextField());
-            panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-            btnMinus = new JButton("<");
-            btnPlus = new JButton(">");
-            lblQuantity = new JLabel("1");
-
-            // Set button and label sizes
-            btnMinus.setPreferredSize(new Dimension(50, 25));
-            btnPlus.setPreferredSize(new Dimension(50, 25));
-            lblQuantity.setPreferredSize(new Dimension(30, 25));
-
-            btnMinus.addActionListener(e -> updateQuantity(-1));
-            btnPlus.addActionListener(e -> updateQuantity(1));
-
-            panel.add(btnMinus);
-            panel.add(lblQuantity);
-            panel.add(btnPlus);
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            lblQuantity.setText(value.toString());
-            rowToEdit = row;
-            return panel;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return Integer.parseInt(lblQuantity.getText());
-        }
-
-        private void updateQuantity(int delta) {
-            int currentQuantity = Integer.parseInt(lblQuantity.getText());
-            int newQuantity = Math.max(1, currentQuantity + delta); // Minimal 1
-            lblQuantity.setText(String.valueOf(newQuantity));
-            cartModel.setValueAt(newQuantity, rowToEdit, 5); // Update Quantity di model
-            updateTotalHarga();
-        
-            SwingUtilities.invokeLater(() -> {
-                tableCart.revalidate();
-                tableCart.repaint();
-            });
-        }
-        
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new NavbarForm(username).setVisible(true);
+        });
     }
 }
