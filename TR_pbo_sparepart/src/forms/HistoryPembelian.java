@@ -42,9 +42,22 @@ public class HistoryPembelian extends JFrame {
         // ScrollPane for the transactions table
         JScrollPane scrollPane = new JScrollPane(tableTransactions);
 
+        // Button panel for Kembali button
+        JPanel buttonPanel = new JPanel();
+        JButton btnKembali = new JButton("Kembali");
+        btnKembali.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new MainMenuBuyer(username).setVisible(true);
+                dispose();
+            }
+        });
+        buttonPanel.add(btnKembali);
+
         // Add components to the frame
         add(titlePanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
 
         // Load the user's transaction history
         loadTransactionHistory();
