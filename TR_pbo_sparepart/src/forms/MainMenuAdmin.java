@@ -10,7 +10,8 @@ public class MainMenuAdmin extends JFrame {
     private JButton btnViewDataBarang;
 
     public MainMenuAdmin() {
-        setTitle("Main Menu");
+        setTitle("SpareMaster Application");
+
 
         // Ukuran frame relatif terhadap layar
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -32,7 +33,7 @@ public class MainMenuAdmin extends JFrame {
         headerPanel.setPreferredSize(new Dimension(frameWidth, frameHeight / 6)); // Tinggi header 1/6 frame
         headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 20));
 
-        JLabel welcomeLabel = new JLabel("Selamat Datang di Gudang Sparepart!");
+        JLabel welcomeLabel = new JLabel("Welcome to SpareMaster Menu");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setForeground(Color.WHITE);
         headerPanel.add(welcomeLabel);
@@ -44,7 +45,7 @@ public class MainMenuAdmin extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
         // Tombol Input Barang
-        btnFormBarang = createButton("  Input Barang", "/icons/input.png", new Color(0, 153, 76));
+        btnFormBarang = createButton("  Tambah Barang", "/icons/input.png", new Color(0, 153, 76));
         btnFormBarang.addActionListener(e -> {
             new FormBarang().setVisible(true);
             dispose();

@@ -13,7 +13,7 @@ public class ViewDataBarangForm extends JFrame {
     private Connection conn;
 
     public ViewDataBarangForm() {
-        setTitle("Data Barang");
+        setTitle("SpareMaster Application");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);

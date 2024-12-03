@@ -13,7 +13,8 @@ public class FormBarang extends JFrame {
     private JButton btnSimpan, btnKembali;
 
     public FormBarang() {
-        setTitle("Form Input Barang");
+        setTitle("SpareMaster Application");
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
         setSize(500, 500);
@@ -26,7 +27,7 @@ public class FormBarang extends JFrame {
         headerPanel.setPreferredSize(new Dimension(getWidth(), getHeight() / 8));
         headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 20));
 
-        JLabel welcomeLabel = new JLabel("Form Input Barang");
+        JLabel welcomeLabel = new JLabel("Form Tambah Barang");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setForeground(Color.WHITE);
         headerPanel.add(welcomeLabel);

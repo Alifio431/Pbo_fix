@@ -14,7 +14,8 @@ public class FormLaporan extends JFrame {
     private JButton btnKembali;
 
     public FormLaporan() {
-        setTitle("Laporan Barang");
+        setTitle("SpareMaster Application");
+
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
