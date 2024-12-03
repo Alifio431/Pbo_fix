@@ -3,9 +3,11 @@ package forms;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import utils.koneksi;
@@ -95,7 +97,10 @@ public class FormBarang extends JFrame {
         btnSimpan.setPreferredSize(new Dimension(100, 40));
         btnKembali.setPreferredSize(new Dimension(100, 40));
 
-        btnSimpan.addActionListener(e -> simpanBarang());
+        btnSimpan.addActionListener(e -> {
+            simpanBarang();
+           
+        });
         btnKembali.addActionListener(e -> {
             new MainMenuAdmin(username).setVisible(true);
             dispose();
@@ -133,63 +138,112 @@ public class FormBarang extends JFrame {
         panel.add(textField, gbc);
     }
 
-    // private void insertToLaporanBarang() throws SQLException {
-    //     String query = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, ?, ?, ?)";
+    private void insertToLaporanBarang(int stokBarang) throws SQLException {
+        String getLastIdQuery = "SELECT id_barang FROM data_barang ORDER BY id_barang DESC LIMIT 1";
+        String insertQuery = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, ?, ?, ?)";
         
-    //     try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
-    //          PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+        try (Connection conn = koneksi.getConnection()) {
+            // Get the latest id_barang
+            int lastId;
+            try (PreparedStatement getLastIdStmt = conn.prepareStatement(getLastIdQuery);
+                 ResultSet rs = getLastIdStmt.executeQuery()) {
+                if (rs.next()) {
+                    lastId = rs.getInt("id_barang");
+                } else {
+                    throw new SQLException("Failed to get last inserted ID");
+                }
+            }
     
-    //             // Set the parameters for the insert statement
-    //             stmt.setInt(1, idBarang);
-    //             stmt.setInt(2, stokBarang yang masuk);  
-    //             stmt.setInt(3, stokbarang yang masuk);
-    //             stmt.setInt(4, 0);  // Barang keluar is the quantity purchased
-    //             stmt.setDouble(5, 0);  // Total transaction value
+            // Insert into laporan_barang
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                insertStmt.setInt(1, lastId + 1);        // The ID from the latest inserted barang
+                insertStmt.setInt(2, stokBarang);    // Current stock level
+                insertStmt.setInt(3, stokBarang);    // Initial stock entry counts as items coming in
+                insertStmt.setInt(4, 0);             // No items have left yet
+                insertStmt.setInt(5, 0);             // No transactions yet
     
-    //             // Execute the insert statement for this item
-    //             stmt.executeUpdate();
-            
-    //     }
-    // }
+                insertStmt.executeUpdate();
+            }
+        }
+    }
 
     private void simpanBarang() {
         try {
-            if (txtNamaBarang.getText().isEmpty() || txtMerk.getText().isEmpty() || txtKategori.getText().isEmpty() ||
-                    txtHarga.getText().isEmpty() || txtStok.getText().isEmpty() || txtDeskripsi.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Semua field harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
+            // Validation check
+            if (txtNamaBarang.getText().isEmpty() || txtMerk.getText().isEmpty() || 
+                txtKategori.getText().isEmpty() || txtHarga.getText().isEmpty() || 
+                txtStok.getText().isEmpty() || txtDeskripsi.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Semua field harus diisi!", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+    
             double harga;
             int stok;
-
+    
             try {
                 harga = Double.parseDouble(txtHarga.getText());
                 stok = Integer.parseInt(txtStok.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Harga harus berupa angka dan stok harus bilangan bulat!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Harga harus berupa angka dan stok harus bilangan bulat!", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+    
             try (Connection conn = koneksi.getConnection()) {
-                String sql = "INSERT INTO data_barang (nama_barang, merk, kategori, harga, stok, deskripsi_barang) VALUES (?, ?, ?, ?, ?, ?)";
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                stmt.setString(1, txtNamaBarang.getText());
-                stmt.setString(2, txtMerk.getText());
-                stmt.setString(3, txtKategori.getText());
-                stmt.setDouble(4, harga);
-                stmt.setInt(5, stok);
-                stmt.setString(6, txtDeskripsi.getText());
-                stmt.executeUpdate();
-                JOptionPane.showMessageDialog(this, "Barang berhasil disimpan!");
+                // Start transaction
+                conn.setAutoCommit(false);
+                
+                try {
+                    // Insert into data_barang
+                    String sql = "INSERT INTO data_barang (nama_barang, merk, kategori, harga, stok, deskripsi_barang) " +
+                               "VALUES (?, ?, ?, ?, ?, ?)";
+                    PreparedStatement stmt = conn.prepareStatement(sql);
+                    String namaBarang = txtNamaBarang.getText();
+                    
+                    stmt.setString(1, namaBarang);
+                    stmt.setString(2, txtMerk.getText());
+                    stmt.setString(3, txtKategori.getText());
+                    stmt.setDouble(4, harga);
+                    stmt.setInt(5, stok);
+                    stmt.setString(6, txtDeskripsi.getText());
+                    stmt.executeUpdate();
+    
+                    // Insert into laporan_barang using nama_barang
+                    insertToLaporanBarang(stok);
+    
+                    // Commit the transaction
+                    conn.commit();
+                    JOptionPane.showMessageDialog(this, "Barang berhasil disimpan!");
+                    
+                    this.dispose();
+                    new MainMenuAdmin(username).setVisible(true);
+                    // Clear the form fields after successful save
+                    clearForm();
+                } catch (SQLException ex) {
+                    // Rollback in case of error
+                    conn.rollback();
+                    throw ex;
+                } finally {
+                    // Restore auto-commit
+                    conn.setAutoCommit(true);
+                }
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Gagal menyimpan barang: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan barang: " + ex.getMessage(), 
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new FormBarang(username).setVisible(true));
+    }
+    private void clearForm() {
+        txtNamaBarang.setText("");
+        txtMerk.setText("");
+        txtKategori.setText("");
+        txtHarga.setText("");
+        txtStok.setText("");
+        txtDeskripsi.setText("");
     }
 }
