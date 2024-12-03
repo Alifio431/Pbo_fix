@@ -76,7 +76,6 @@ public class ViewDataBarangForm extends JFrame {
         add(contentPanel, BorderLayout.CENTER);
         add(footerPanel, BorderLayout.SOUTH);
 
-        // Koneksi Database dan Load Data
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
             loadDataBarang();
