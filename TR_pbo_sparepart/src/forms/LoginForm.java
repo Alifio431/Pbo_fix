@@ -34,7 +34,7 @@ public class LoginForm extends JFrame {
             ImageIcon logoIcon = new ImageIcon(getClass().getResource("/img/logo.jpg"));
             Image scaledImage = logoIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
             JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
-            logoLabel.setBounds(150, 10, 100, 100); // Pusatkan logo
+            logoLabel.setBounds(150, 10, 100, 100);
             headerPanel.add(logoLabel);
         } catch (Exception ex) {
             System.err.println("Error loading logo: " + ex.getMessage());
@@ -44,7 +44,7 @@ public class LoginForm extends JFrame {
         }
 
         JLabel headerTitle = new JLabel("Welcome to SpareMaster");
-        headerTitle.setBounds(110, 110, 200, 30); // Diposisikan di bawah logo
+        headerTitle.setBounds(110, 110, 200, 30);
         headerTitle.setFont(new Font("Arial", Font.BOLD, 16));
         headerTitle.setForeground(Color.WHITE);
         headerPanel.add(headerTitle);
@@ -103,7 +103,7 @@ public class LoginForm extends JFrame {
                         new MainMenuForm().setVisible(true);
                     }
                     if (permission.equals("user")) {
-                        new FormBeli().setVisible(true);
+                        new NavbarForm().setVisible(true);
                     }
                     dispose();
                 } else {
