@@ -12,8 +12,11 @@ public class FormLaporan extends JFrame {
     private JTable tableLaporan;
     private DefaultTableModel tableModel;
     private JButton btnKembali;
+    private static String username;
 
-    public FormLaporan() {
+
+    public FormLaporan(String username) {
+        this.username = username;
         setTitle("Laporan Barang");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -48,7 +51,7 @@ public class FormLaporan extends JFrame {
 
         // Tambahkan aksi tombol
         btnKembali.addActionListener(e -> {
-            new MainMenuAdmin().setVisible(true);
+            new MainMenuAdmin(username).setVisible(true);
             dispose();
         });
 
@@ -107,6 +110,6 @@ public class FormLaporan extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FormLaporan().setVisible(true));
+        SwingUtilities.invokeLater(() -> new FormLaporan(username).setVisible(true));
     }
 }

@@ -11,8 +11,10 @@ public class ViewDataBarangForm extends JFrame {
     private DefaultTableModel tableModel;
     private JButton btnUpdate, btnDelete, btnBack;
     private Connection conn;
+    private static String username;
 
-    public ViewDataBarangForm() {
+    public ViewDataBarangForm(String username) {
+        this.username = username;
         setTitle("Data Barang");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -50,7 +52,7 @@ public class ViewDataBarangForm extends JFrame {
         btnUpdate.addActionListener(e -> updateBarang());
         btnDelete.addActionListener(e -> hapusBarang());
         btnBack.addActionListener(e -> {
-            new MainMenuAdmin().setVisible(true);
+            new MainMenuAdmin(username).setVisible(true);
             dispose();
         });
 
@@ -243,6 +245,6 @@ public class ViewDataBarangForm extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ViewDataBarangForm().setVisible(true));
+        SwingUtilities.invokeLater(() -> new ViewDataBarangForm(username).setVisible(true));
     }
 }

@@ -11,8 +11,10 @@ public class FormBarang extends JFrame {
     private JTextField txtNamaBarang, txtMerk, txtKategori, txtHarga, txtStok;
     private JTextArea txtDeskripsi;
     private JButton btnSimpan, btnKembali;
+    private static String username;
 
-    public FormBarang() {
+    public FormBarang(String username) {
+        this.username=username;
         setTitle("Form Input Barang");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -91,7 +93,7 @@ public class FormBarang extends JFrame {
 
         btnSimpan.addActionListener(e -> simpanBarang());
         btnKembali.addActionListener(e -> {
-            new MainMenuAdmin().setVisible(true);
+            new MainMenuAdmin(username).setVisible(true);
             dispose();
         });
 
@@ -164,6 +166,6 @@ public class FormBarang extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FormBarang().setVisible(true));
+        SwingUtilities.invokeLater(() -> new FormBarang(username).setVisible(true));
     }
 }

@@ -9,7 +9,7 @@ public class MainMenuAdmin extends JFrame {
     private JButton btnLogout;
     private JButton btnViewDataBarang;
 
-    public MainMenuAdmin() {
+    public MainMenuAdmin(String username) {
         setTitle("Main Menu");
 
         // Ukuran frame relatif terhadap layar
@@ -46,7 +46,7 @@ public class MainMenuAdmin extends JFrame {
         // Tombol Input Barang
         btnFormBarang = createButton("  Input Barang", "/icons/input.png", new Color(0, 153, 76));
         btnFormBarang.addActionListener(e -> {
-            new FormBarang().setVisible(true);
+            new FormBarang(username).setVisible(true);
             dispose();
         });
         mainPanel.add(btnFormBarang);
@@ -54,7 +54,7 @@ public class MainMenuAdmin extends JFrame {
         // Tombol Laporan
         btnFormLaporan = createButton("  Laporan", "/icons/report.png", new Color(255, 102, 0));
         btnFormLaporan.addActionListener(e -> {
-            new FormLaporan().setVisible(true);
+            new FormLaporan(username).setVisible(true);
             dispose();
         });
         mainPanel.add(btnFormLaporan);
@@ -62,7 +62,7 @@ public class MainMenuAdmin extends JFrame {
         // Tombol Lihat Data Barang
         btnViewDataBarang = createButton("  Lihat Data Barang", "/icons/view.png", new Color(0, 153, 204));
         btnViewDataBarang.addActionListener(e -> {
-            new ViewDataBarangForm().setVisible(true);
+            new ViewDataBarangForm(username).setVisible(true);
         });
         mainPanel.add(btnViewDataBarang);
 
@@ -121,6 +121,9 @@ public class MainMenuAdmin extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainMenuAdmin().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            String username = "Default User"; // Contoh pengambilan username
+            new MainMenuBuyer(username).setVisible(true);
+        });
     }
 }
