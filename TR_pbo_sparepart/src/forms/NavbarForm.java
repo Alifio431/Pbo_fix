@@ -367,51 +367,32 @@ public class NavbarForm extends JFrame {
         });
     }
 
-    private void insertToLaporanBarang() throws SQLException {
-        String checkQuery = "SELECT * FROM laporan_barang WHERE id_barang = ?";
+    private void insertToLaporanBarang() throws SQLException { 
         String insertQuery = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, 0, ?, ?)";
-        String updateQuery = "UPDATE laporan_barang SET stok_barang = ?, barang_keluar = barang_keluar + ?, jumlah_transaksi = jumlah_transaksi + ? WHERE id_barang = ?";
     
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "")) {
             for (int i = 0; i < cartModel.getRowCount(); i++) {
                 int idBarang = Integer.parseInt(cartModel.getValueAt(i, 0).toString());
                 int quantity = Integer.parseInt(cartModel.getValueAt(i, 5).toString());
                 double harga = Double.parseDouble(cartModel.getValueAt(i, 4).toString());
-                
+    
                 // Calculate the total transaction amount
                 double jumlahTransaksi = harga * quantity;
     
-                // First, check if the item already exists in laporan_barang
-                try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
-                    checkStmt.setInt(1, idBarang);
-                    ResultSet rs = checkStmt.executeQuery();
+                // Retrieve current stok from data_barang
+                int currentStok = getCurrentStok(conn, idBarang);
     
-                    // Retrieve current stok from data_barang
-                    int currentStok = getCurrentStok(conn, idBarang);
-    
-                    if (rs.next()) {
-                        // Item exists, update existing record
-                        try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
-                            updateStmt.setInt(1, currentStok - quantity);  // Update stok
-                            updateStmt.setInt(2, quantity);  // Add to barang_keluar
-                            updateStmt.setDouble(3, jumlahTransaksi);  // Add to jumlah_transaksi
-                            updateStmt.setInt(4, idBarang);
-                            updateStmt.executeUpdate();
-                        }
-                    } else {
-                        // Item does not exist, insert new record
-                        try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-                            insertStmt.setInt(1, idBarang);
-                            insertStmt.setInt(2, currentStok - quantity);  // Current stock after transaction
-                            insertStmt.setInt(3, quantity);  // barang_keluar
-                            insertStmt.setDouble(4, jumlahTransaksi);
-                            insertStmt.executeUpdate();
-                        }
-                    }
-    
-                    // Update stok in data_barang
-                    updateStokBarang(conn, idBarang, quantity);
+                // Insert a new record into laporan_barang
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                    insertStmt.setInt(1, idBarang);
+                    insertStmt.setInt(2, currentStok - quantity);  // Current stock after transaction
+                    insertStmt.setInt(3, quantity);  // barang_keluar
+                    insertStmt.setDouble(4, jumlahTransaksi);
+                    insertStmt.executeUpdate();
                 }
+    
+                // Update stok in data_barang
+                updateStokBarang(conn, idBarang, quantity);
             }
         }
     }
