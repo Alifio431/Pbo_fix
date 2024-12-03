@@ -123,6 +123,15 @@ public class NavbarForm extends JFrame {
             add(scrollPaneResults, BorderLayout.CENTER);
             add(cartPanel, BorderLayout.SOUTH);
 
+            JButton btnKembali = new JButton("Kembali");
+            navbarPanel.add(btnKembali);
+
+            // Add action listener for the Kembali button
+            btnKembali.addActionListener(e -> {
+                dispose();
+                new MainMenuBuyer(username).setVisible(true);
+            });
+
             btnBeli = new JButton("Beli");
             navbarPanel.add(btnBeli);
     
