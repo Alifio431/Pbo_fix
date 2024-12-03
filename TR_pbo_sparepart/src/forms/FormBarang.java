@@ -91,7 +91,7 @@ public class FormBarang extends JFrame {
 
         btnSimpan.addActionListener(e -> simpanBarang());
         btnKembali.addActionListener(e -> {
-            new MainMenuForm().setVisible(true);
+            new MainMenuAdmin().setVisible(true);
             dispose();
         });
 

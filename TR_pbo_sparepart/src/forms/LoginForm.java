@@ -101,7 +101,7 @@ public class LoginForm extends JFrame {
                 if (permission != null) {
                     JOptionPane.showMessageDialog(null, "Login Successful!");
                     if (permission.equals("admin")) {
-                        new MainMenuForm().setVisible(true);
+                        new MainMenuAdmin().setVisible(true);
                     }
                     if (permission.equals("user")) {
                         new MainMenuBuyer(username).setVisible(true);

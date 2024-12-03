@@ -50,7 +50,7 @@ public class ViewDataBarangForm extends JFrame {
         btnUpdate.addActionListener(e -> updateBarang());
         btnDelete.addActionListener(e -> hapusBarang());
         btnBack.addActionListener(e -> {
-            new MainMenuForm().setVisible(true);
+            new MainMenuAdmin().setVisible(true);
             dispose();
         });
 
