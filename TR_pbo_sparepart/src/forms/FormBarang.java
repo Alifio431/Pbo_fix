@@ -4,7 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import utils.koneksi;
 
 public class FormBarang extends JFrame {
@@ -129,6 +132,26 @@ public class FormBarang extends JFrame {
         gbc.gridwidth = 2;
         panel.add(textField, gbc);
     }
+
+    // private void insertToLaporanBarang() throws SQLException {
+    //     String query = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, ?, ?, ?)";
+        
+    //     try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
+    //          PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+    
+    //             // Set the parameters for the insert statement
+    //             stmt.setInt(1, idBarang);
+    //             stmt.setInt(2, stokBarang yang masuk);  
+    //             stmt.setInt(3, stokbarang yang masuk);
+    //             stmt.setInt(4, 0);  // Barang keluar is the quantity purchased
+    //             stmt.setDouble(5, 0);  // Total transaction value
+    
+    //             // Execute the insert statement for this item
+    //             stmt.executeUpdate();
+            
+    //     }
+    // }
 
     private void simpanBarang() {
         try {
