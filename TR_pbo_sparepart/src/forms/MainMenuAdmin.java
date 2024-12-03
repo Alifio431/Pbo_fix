@@ -2,15 +2,14 @@ package forms;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class MainMenuBuyer extends JFrame {
-    private JButton btnBeliBarang;
-    private JButton btnHistoryPembelian;
+public class MainMenuAdmin extends JFrame {
+    private JButton btnFormBarang;
+    private JButton btnFormLaporan;
     private JButton btnLogout;
+    private JButton btnViewDataBarang;
 
-    public MainMenuBuyer(String username) {
+    public MainMenuAdmin() {
         setTitle("Main Menu");
 
         // Ukuran frame relatif terhadap layar
@@ -31,61 +30,47 @@ public class MainMenuBuyer extends JFrame {
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(new Color(0, 102, 204)); // Warna biru cerah
         headerPanel.setPreferredSize(new Dimension(frameWidth, frameHeight / 6)); // Tinggi header 1/6 frame
-        headerPanel.setLayout(new BorderLayout());
+        headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 20));
 
         JLabel welcomeLabel = new JLabel("Selamat Datang di Gudang Sparepart!");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setForeground(Color.WHITE);
-        headerPanel.add(welcomeLabel, BorderLayout.CENTER);
-
-        // Panel untuk nama di kanan atas
-        JPanel profilePanel = new JPanel();
-        profilePanel.setBackground(new Color(0, 102, 204)); // Warna sama dengan header
-        profilePanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
-        JLabel usernameLabel = new JLabel(username);
-        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        usernameLabel.setForeground(Color.WHITE);
-        profilePanel.add(usernameLabel);
-
-        headerPanel.add(profilePanel, BorderLayout.EAST);
+        headerPanel.add(welcomeLabel);
 
         // Panel Utama
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setLayout(new GridLayout(3, 1, 25, 25));
+        mainPanel.setLayout(new GridLayout(2, 2, 25, 25));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
-        // Tombol Beli Barang
-        btnBeliBarang = createButton("  Beli Barang", new Color(0, 153, 76));
-        btnBeliBarang.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new NavbarForm(username).setVisible(true);
-                dispose();
-            }
+        // Tombol Input Barang
+        btnFormBarang = createButton("  Input Barang", "/icons/input.png", new Color(0, 153, 76));
+        btnFormBarang.addActionListener(e -> {
+            new FormBarang().setVisible(true);
+            dispose();
         });
-        mainPanel.add(btnBeliBarang);
+        mainPanel.add(btnFormBarang);
 
-        // Tombol History Pembelian
-        btnHistoryPembelian = createButton("  History Pembelian", new Color(255, 102, 0));
-        btnHistoryPembelian.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new HistoryPembelian(username).setVisible(true);
-                dispose();
-            }
+        // Tombol Laporan
+        btnFormLaporan = createButton("  Laporan", "/icons/report.png", new Color(255, 102, 0));
+        btnFormLaporan.addActionListener(e -> {
+            new FormLaporan().setVisible(true);
+            dispose();
         });
-        mainPanel.add(btnHistoryPembelian);
+        mainPanel.add(btnFormLaporan);
+
+        // Tombol Lihat Data Barang
+        btnViewDataBarang = createButton("  Lihat Data Barang", "/icons/view.png", new Color(0, 153, 204));
+        btnViewDataBarang.addActionListener(e -> {
+            new ViewDataBarangForm().setVisible(true);
+        });
+        mainPanel.add(btnViewDataBarang);
 
         // Tombol Logout
-        btnLogout = createButton("  Logout", new Color(204, 0, 0));
-        btnLogout.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new LoginForm().setVisible(true);
-                dispose();
-            }
+        btnLogout = createButton("  Logout", "/icons/logout.png", new Color(204, 0, 0));
+        btnLogout.addActionListener(e -> {
+            dispose();
+            new LoginForm().setVisible(true);
         });
         mainPanel.add(btnLogout);
 
@@ -107,10 +92,11 @@ public class MainMenuBuyer extends JFrame {
     }
 
     /**
-     * Method untuk membuat tombol dengan desain warna.
+     * Method untuk membuat tombol dengan ikon dan desain warna.
      */
-    private JButton createButton(String text, Color bgColor) {
+    private JButton createButton(String text, String iconPath, Color bgColor) {
         JButton button = new JButton(text);
+        button.setIcon(loadIcon(iconPath)); // Tambahkan ikon
         button.setFont(new Font("Arial", Font.BOLD, 18));
         button.setBackground(bgColor);
         button.setForeground(Color.WHITE);
@@ -120,10 +106,21 @@ public class MainMenuBuyer extends JFrame {
         return button;
     }
 
+    /**
+     * Method untuk memuat ikon dari path.
+     */
+    private ImageIcon loadIcon(String path) {
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource(path));
+            Image scaledImage = icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH); // Ukuran ikon diperbesar
+            return new ImageIcon(scaledImage);
+        } catch (Exception e) {
+            System.err.println("Error loading icon: " + e.getMessage());
+            return null;
+        }
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            String username = "Default User"; // Contoh pengambilan username
-            new MainMenuBuyer(username).setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new MainMenuAdmin().setVisible(true));
     }
 }

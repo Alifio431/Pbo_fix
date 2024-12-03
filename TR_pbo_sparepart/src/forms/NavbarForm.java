@@ -292,7 +292,7 @@ public class NavbarForm extends JFrame {
             }
             lblTotalHarga.setText("Total Harga: " + total);
         }
-    
+
         // Custom renderer untuk tombol "Delete"
         class ButtonRenderer extends JButton implements TableCellRenderer {
             public ButtonRenderer() {
@@ -311,24 +311,41 @@ public class NavbarForm extends JFrame {
         class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
             private JButton button;
             private int row;
-    
+            private JTable table;
+        
             public ButtonEditor() {
                 button = new JButton("Delete");
                 button.addActionListener(e -> {
-                    deleteFromCart(row);
+                    // Use the current row from the table, not a stored row value
+                    int selectedRow = table.convertRowIndexToModel(row);
+                    deleteFromCart(selectedRow);
                     fireEditingStopped();
                 });
             }
-    
+        
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                this.table = table;
                 this.row = row;
                 return button;
             }
-    
+        
             @Override
             public Object getCellEditorValue() {
                 return "Delete";
+            }
+        }
+        
+        private void deleteFromCart(int row) {
+            // Check if row is valid before removing
+            if (row >= 0 && row < cartModel.getRowCount()) {
+                cartModel.removeRow(row);
+                updateTotalHarga();
+        
+                SwingUtilities.invokeLater(() -> {
+                    tableCart.revalidate();
+                    tableCart.repaint();
+                });
             }
         }
         public static void main(String[] args) {
@@ -337,16 +354,6 @@ public class NavbarForm extends JFrame {
         });
     }
 
-
-    private void deleteFromCart(int row) {
-        cartModel.removeRow(row);
-        updateTotalHarga();
-    
-        SwingUtilities.invokeLater(() -> {
-            tableCart.revalidate();
-            tableCart.repaint();
-        });
-    }
     
 
     // Custom renderer untuk kolom Quantity

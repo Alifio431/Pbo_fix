@@ -48,7 +48,7 @@ public class FormLaporan extends JFrame {
 
         // Tambahkan aksi tombol
         btnKembali.addActionListener(e -> {
-            new MainMenuForm().setVisible(true);
+            new MainMenuAdmin().setVisible(true);
             dispose();
         });
 
