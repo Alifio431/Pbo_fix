@@ -1,14 +1,12 @@
-//admin
-//digunakan untuk melihat data laporan
 package forms;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.*;
-import utils.koneksi;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import utils.koneksi;
 
 public class FormLaporan extends JFrame {
     private JTable tableLaporan;
@@ -17,34 +15,77 @@ public class FormLaporan extends JFrame {
 
     public FormLaporan() {
         setTitle("Laporan Barang");
-        setSize(600, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(null);
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-        tableModel = new DefaultTableModel();
-        tableModel.addColumn("ID Barang");
-        tableModel.addColumn("Stok Barang");
-        tableModel.addColumn("Barang Masuk");
-        tableModel.addColumn("Barang Keluar");
-        tableModel.addColumn("Jumlah Transaksi");
+        // Panel Header
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 20));
+        headerPanel.setBackground(new Color(0, 102, 204));
+        JLabel welcomeLabel = new JLabel("Laporan Barang");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        welcomeLabel.setForeground(Color.WHITE);
+        headerPanel.add(welcomeLabel);
+
+        // Tabel dan ScrollPanel
+        tableModel = new DefaultTableModel(new String[]{"ID Barang", "Stok Barang", "Barang Masuk", "Barang Keluar", "Jumlah Transaksi"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         tableLaporan = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(tableLaporan);
-        scrollPane.setBounds(20, 20, 540, 250);
-        add(scrollPane);
+        tableLaporan.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        tableLaporan.getTableHeader().setBackground(new Color(0, 102, 204));
+        tableLaporan.getTableHeader().setForeground(Color.WHITE);
+        tableLaporan.setRowHeight(25);
+        JScrollPane scrollPanel = new JScrollPane(tableLaporan);
 
-        btnKembali = new JButton("Kembali");
-        btnKembali.setBounds(250, 300, 100, 30);
-        add(btnKembali);
+        // Panel Tombol
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        btnKembali = createButton("Kembali", new Color(0, 102, 204));
 
+        // Tambahkan aksi tombol
         btnKembali.addActionListener(e -> {
             new MainMenuForm().setVisible(true);
             dispose();
         });
 
+        buttonPanel.add(btnKembali);
+
+        // Panel Footer
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        footerPanel.setBackground(Color.LIGHT_GRAY);
+        JLabel footerLabel = new JLabel("© 2024 SpareMaster.co");
+        footerLabel.setFont(new Font("Arial", Font.ITALIC, 14));
+        footerPanel.add(footerLabel);
+
+        // Layout Utama
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        contentPanel.add(scrollPanel, BorderLayout.CENTER);
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setLayout(new BorderLayout());
+        add(headerPanel, BorderLayout.NORTH);
+        add(contentPanel, BorderLayout.CENTER);
+        add(footerPanel, BorderLayout.SOUTH);
+
+        // Load Data Laporan
         loadLaporan();
     }
 
+    // Method Membuat Tombol dengan Warna
+    private JButton createButton(String text, Color color) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        return button;
+    }
+
+    // Method Load Data Laporan
     private void loadLaporan() {
         try (Connection conn = koneksi.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -61,7 +102,11 @@ public class FormLaporan extends JFrame {
                 });
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal memuat data laporan: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new FormLaporan().setVisible(true));
     }
 }
