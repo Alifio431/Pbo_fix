@@ -149,6 +149,7 @@ public class NavbarForm extends JFrame {
                 try {
                     // Insert cart items into the database
                     insertToHistoryTransaksi();
+                    insertToLaporanBarang();
                     
                     // Show success message
                     JOptionPane.showMessageDialog(this, "Pembelian berhasil! Menunggu untuk melanjutkan.", "Pembelian Sukses", JOptionPane.INFORMATION_MESSAGE);
@@ -354,8 +355,36 @@ public class NavbarForm extends JFrame {
         });
     }
 
+    private void insertToLaporanBarang() throws SQLException {
+        String insertQuery = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/tr_pbo", "root", "");
+             PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
+            
+            // Loop through the cart items and insert each one into laporan_barang
+            for (int i = 0; i < cartModel.getRowCount(); i++) {
+                int idBarang = (int) cartModel.getValueAt(i, 0);
+                int stokBarang = (int) cartModel.getValueAt(i, 5); // Quantity in cart
+                double harga = (double) cartModel.getValueAt(i, 4);
+                double jumlahTransaksi = harga * stokBarang; // Total price for the item
     
-
+                // Assume barang_masuk and barang_keluar are both set to the quantity in the cart
+                int barangMasuk = stokBarang;
+                int barangKeluar = 0;  // No "barang_keluar" for this context, set it to 0 or adjust as needed
+    
+                // Set values for the prepared statement
+                stmt.setInt(1, idBarang);
+                stmt.setInt(2, stokBarang);  // Stok after purchase (quantity in cart)
+                stmt.setInt(3, barangMasuk);  // Barang masuk (quantity added to stock)
+                stmt.setInt(4, barangKeluar); // Barang keluar (quantity sold, 0 for now)
+                stmt.setDouble(5, jumlahTransaksi);  // Total transaction value
+    
+                // Execute the insert for each cart item
+                stmt.executeUpdate();
+            }
+        }
+    }
+    
     // Custom renderer untuk kolom Quantity
     class QuantityRenderer extends JPanel implements TableCellRenderer {
         private JButton btnMinus, btnPlus;
