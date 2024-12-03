@@ -2,6 +2,8 @@ package forms;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainMenuBuyer extends JFrame {
     private JButton btnBeliBarang;
@@ -52,18 +54,39 @@ public class MainMenuBuyer extends JFrame {
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(Color.WHITE);
         mainPanel.setLayout(new GridLayout(3, 1, 25, 25));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(40, 250, 40, 250));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
         // Tombol Beli Barang
         btnBeliBarang = createButton("  Beli Barang", new Color(0, 153, 76));
+        btnBeliBarang.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new NavbarForm(username).setVisible(true);
+                dispose();
+            }
+        });
         mainPanel.add(btnBeliBarang);
 
         // Tombol History Pembelian
         btnHistoryPembelian = createButton("  History Pembelian", new Color(255, 102, 0));
+        btnHistoryPembelian.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // new HistoryPembelian(username).setVisible(true);
+                dispose();
+            }
+        });
         mainPanel.add(btnHistoryPembelian);
 
         // Tombol Logout
         btnLogout = createButton("  Logout", new Color(204, 0, 0));
+        btnLogout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new LoginForm().setVisible(true);
+                dispose();
+            }
+        });
         mainPanel.add(btnLogout);
 
         // Panel Footer
