@@ -267,18 +267,24 @@ public class NavbarForm extends JFrame {
                 int idBarang = Integer.parseInt(tableModelCart.getValueAt(i, 0).toString());
                 int stokBarang = Integer.parseInt(tableModelCart.getValueAt(i, 5).toString());
                 double harga = Double.parseDouble(tableModelCart.getValueAt(i, 4).toString());
-                double jumlahTransaksi = harga * stokBarang;
-
+                int quantity = Integer.parseInt(tableModelCart.getValueAt(i, 3).toString()); // Get the quantity for this item
+                
+                // Calculate the total transaction amount (quantity * price per item)
+                double jumlahTransaksi = harga * quantity;
+    
+                // Set the parameters for the insert statement
                 stmt.setInt(1, idBarang);
-                stmt.setInt(2, stokBarang);
-                stmt.setInt(3, stokBarang);
-                stmt.setInt(4, 0);
-                stmt.setDouble(5, jumlahTransaksi);
-
+                stmt.setInt(2, stokBarang - quantity);  // Update the stock after the transaction (reduce the stock)
+                stmt.setInt(3, 0);  // Barang masuk is 0 because no stock is coming in
+                stmt.setInt(4, quantity);  // Barang keluar is the quantity purchased
+                stmt.setDouble(5, jumlahTransaksi);  // Total transaction value
+    
+                // Execute the insert statement for this item
                 stmt.executeUpdate();
             }
         }
     }
+    
 
     private void loadInitialData() {
         performSearch(); // Load all data initially
