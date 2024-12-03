@@ -14,7 +14,8 @@ public class LoginForm extends JFrame {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JLabel errorLabel;
-
+    private String username;
+    
     public LoginForm() {
         setTitle("SpareMaster Application");
         setSize(400, 450); // Tinggi diperbesar untuk memberikan lebih banyak ruang
@@ -93,7 +94,7 @@ public class LoginForm extends JFrame {
 
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
+                username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
 
                 String permission = validateLogin(username, password);
@@ -103,7 +104,7 @@ public class LoginForm extends JFrame {
                         new MainMenuForm().setVisible(true);
                     }
                     if (permission.equals("user")) {
-                        new NavbarForm().setVisible(true);
+                        new MainMenuBuyer(username).setVisible(true);
                     }
                     dispose();
                 } else {
