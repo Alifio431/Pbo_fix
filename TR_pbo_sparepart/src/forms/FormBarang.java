@@ -184,6 +184,20 @@ public class FormBarang extends JFrame {
             try {
                 harga = Double.parseDouble(txtHarga.getText());
                 stok = Integer.parseInt(txtStok.getText());
+    
+                // Additional validation: Price and Stock must be greater than 0
+                if (harga <= 0) {
+                    JOptionPane.showMessageDialog(this, "Harga barang harus lebih besar dari 0!", 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+    
+                if (stok <= 0) {
+                    JOptionPane.showMessageDialog(this, "Stok barang harus lebih besar dari 0!", 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+    
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Harga harus berupa angka dan stok harus bilangan bulat!", 
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -198,6 +212,7 @@ public class FormBarang extends JFrame {
                     // Insert into data_barang
                     String sql = "INSERT INTO data_barang (nama_barang, merk, kategori, harga, stok, deskripsi_barang) " +
                                "VALUES (?, ?, ?, ?, ?, ?)";
+    
                     PreparedStatement stmt = conn.prepareStatement(sql);
                     String namaBarang = txtNamaBarang.getText();
                     
@@ -234,6 +249,7 @@ public class FormBarang extends JFrame {
                 "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new FormBarang(username).setVisible(true));
