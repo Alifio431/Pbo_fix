@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 04, 2024 at 06:12 AM
+-- Generation Time: Dec 04, 2024 at 07:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,15 +31,18 @@ CREATE TABLE `akun` (
   `id_akun` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(50) NOT NULL,
-  `permission` enum('admin','user') NOT NULL,
-  PRIMARY KEY (`id_akun`),
-  UNIQUE KEY `username` (`username`)
+  `permission` enum('admin','user') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `akun`
 --
 
+INSERT INTO `akun` (`id_akun`, `username`, `password`, `permission`) VALUES
+(1, 'alifio', '6969', 'admin'),
+(2, 'farahan', '123', 'user'),
+(3, 'farhan', '1212', 'user'),
+(4, 'master', '1212', 'admin');
 
 -- --------------------------------------------------------
 
@@ -54,53 +57,14 @@ CREATE TABLE `data_barang` (
   `kategori` varchar(50) NOT NULL,
   `harga` decimal(10,2) NOT NULL,
   `stok` int(11) NOT NULL,
-  `deskripsi_barang` text DEFAULT NULL,
-  PRIMARY KEY (`id_barang`)
+  `deskripsi_barang` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `data_barang`
 --
 
--- --------------------------------------------------------
-
---
--- Table structure for table `history_transaksi`
---
-
-CREATE TABLE `history_transaksi` (
-  `id_penjualan` int(11) NOT NULL,
-  `id_akun` int(11) NOT NULL,
-  `id_barang` int(11) NOT NULL,
-  `nama_barang` varchar(100) NOT NULL,
-  `merk` varchar(50) NOT NULL,
-  `harga` decimal(10,2) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `total_harga` decimal(15,2) NOT NULL,
-  PRIMARY KEY (`id_penjualan`),
-  KEY `id_barang` (`id_barang`),
-  KEY `id_akun` (`id_akun`),
-  CONSTRAINT `history_transaksi_ibfk_1` FOREIGN KEY (`id_akun`) REFERENCES `akun` (`id_akun`),
-  CONSTRAINT `history_transaksi_ibfk_2` FOREIGN KEY (`id_barang`) REFERENCES `data_barang` (`id_barang`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `history_transaksi`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `laporan_barang`
---
-INSERT INTO `akun` (`id_akun`, `username`, `password`, `permission`) VALUES
-(1, 'alifio', '6969', 'admin'),
-(2, 'farahan', '123', 'user'),
-(3, 'farhan', '1212', 'user'),
-(4, 'master', '1212', 'admin');
-
 INSERT INTO `data_barang` (`id_barang`, `nama_barang`, `merk`, `kategori`, `harga`, `stok`, `deskripsi_barang`) VALUES
-(1, 'asd', 'asd', 'asd', 123.00, 67, 'asdkjaklsj'),
 (2, 'Piston', 'Alphine', 'Mesin dan Komponen Mesin', 500000.00, 86, 'Piston untuk mesin kendaraan, berkualitas tinggi.'),
 (3, 'Camshaft', 'Dunloop', 'Mesin dan Komponen Mesin', 1200000.00, 47, 'Camshaft untuk performa mesin yang optimal.'),
 (4, 'Crankshaft', 'Bosch', 'Mesin dan Komponen Mesin', 2000000.00, 30, 'Crankshaft untuk meningkatkan tenaga mesin.'),
@@ -146,23 +110,41 @@ INSERT INTO `data_barang` (`id_barang`, `nama_barang`, `merk`, `kategori`, `harg
 (45, 'qwe', 'qwe', 'qwe', 123.00, 113, 'qwe'),
 (46, 'Ban dalam ', 'Esparco', 'Ban dan Roda', 150000.00, 50, 'Ban dalam anti paku anti bocor garansi seumur hidup selama tidak kecelakaan');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `history_transaksi`
+--
+
+CREATE TABLE `history_transaksi` (
+  `id_penjualan` int(11) NOT NULL,
+  `id_akun` int(11) NOT NULL,
+  `id_barang` int(11) NOT NULL,
+  `nama_barang` varchar(100) NOT NULL,
+  `merk` varchar(50) NOT NULL,
+  `harga` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `total_harga` decimal(15,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `laporan_barang`
+--
+
 CREATE TABLE `laporan_barang` (
   `id_laporan` int(11) NOT NULL,
   `id_barang` int(11) NOT NULL,
   `stok_barang` int(11) NOT NULL,
   `barang_masuk` int(11) NOT NULL,
   `barang_keluar` int(11) NOT NULL,
-  `jumlah_transaksi` decimal(15,2) NOT NULL,
-  PRIMARY KEY (`id_laporan`)
+  `jumlah_transaksi` decimal(15,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `laporan_barang`
---
-
--- --------------------------------------------------------
-
 -- Indexes for dumped tables
+--
 
 --
 -- Indexes for table `akun`
@@ -191,7 +173,9 @@ ALTER TABLE `history_transaksi`
 ALTER TABLE `laporan_barang`
   ADD PRIMARY KEY (`id_laporan`);
 
+--
 -- AUTO_INCREMENT for dumped tables
+--
 
 --
 -- AUTO_INCREMENT for table `akun`
@@ -209,9 +193,26 @@ ALTER TABLE `data_barang`
 -- AUTO_INCREMENT for table `history_transaksi`
 --
 ALTER TABLE `history_transaksi`
-  MODIFY `id_penjualan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=221;
+  MODIFY `id_penjualan` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `laporan_barang`
+--
 ALTER TABLE `laporan_barang`
-  MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `history_transaksi`
+--
+ALTER TABLE `history_transaksi`
+  ADD CONSTRAINT `history_transaksi_ibfk_1` FOREIGN KEY (`id_akun`) REFERENCES `akun` (`id_akun`),
+  ADD CONSTRAINT `history_transaksi_ibfk_2` FOREIGN KEY (`id_barang`) REFERENCES `data_barang` (`id_barang`);
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
