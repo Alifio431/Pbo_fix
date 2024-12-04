@@ -4,14 +4,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class MainMenuBuyer extends JFrame {
     private JButton btnBeliBarang;
     private JButton btnHistoryPembelian;
     private JButton btnLogout;
+    private JLabel usernameLabel;
 
     public MainMenuBuyer(String username) {
-        setTitle("Main Menu");
+        setTitle("SpareMaster Application");
 
         // Ukuran frame relatif terhadap layar
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -31,24 +34,21 @@ public class MainMenuBuyer extends JFrame {
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(new Color(0, 102, 204)); // Warna biru cerah
         headerPanel.setPreferredSize(new Dimension(frameWidth, frameHeight / 6)); // Tinggi header 1/6 frame
-        headerPanel.setLayout(new BorderLayout());
+        headerPanel.setLayout(null);
 
         JLabel welcomeLabel = new JLabel("Selamat Datang di Gudang Sparepart!");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setForeground(Color.WHITE);
-        headerPanel.add(welcomeLabel, BorderLayout.CENTER);
+        welcomeLabel.setBounds(50, 20, 600, 50);
+        headerPanel.add(welcomeLabel);
 
-        // Panel untuk nama di kanan atas
-        JPanel profilePanel = new JPanel();
-        profilePanel.setBackground(new Color(0, 102, 204)); // Warna sama dengan header
-        profilePanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
-        JLabel usernameLabel = new JLabel(username);
+        // Label untuk nama di kanan atas
+        usernameLabel = new JLabel(username);
         usernameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         usernameLabel.setForeground(Color.WHITE);
-        profilePanel.add(usernameLabel);
+        headerPanel.add(usernameLabel);
 
-        headerPanel.add(profilePanel, BorderLayout.EAST);
+        add(headerPanel, BorderLayout.NORTH);
 
         // Panel Utama
         JPanel mainPanel = new JPanel();
@@ -57,18 +57,18 @@ public class MainMenuBuyer extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
         // Tombol Beli Barang
-        btnBeliBarang = createButton("  Beli Barang", new Color(0, 153, 76));
+        btnBeliBarang = createButton("  Beli Barang","/icons/cart.png", new Color(0, 153, 76));
         btnBeliBarang.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new NavbarForm(username).setVisible(true);
+                new FromBeliBarang(username).setVisible(true);
                 dispose();
             }
         });
         mainPanel.add(btnBeliBarang);
 
         // Tombol History Pembelian
-        btnHistoryPembelian = createButton("  History Pembelian", new Color(255, 102, 0));
+        btnHistoryPembelian = createButton("  History Pembelian", "/icons/history.png", new Color(255, 102, 0));
         btnHistoryPembelian.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -79,7 +79,7 @@ public class MainMenuBuyer extends JFrame {
         mainPanel.add(btnHistoryPembelian);
 
         // Tombol Logout
-        btnLogout = createButton("  Logout", new Color(204, 0, 0));
+        btnLogout = createButton("  Logout", "/icons/logout.png", new Color(204, 0, 0));
         btnLogout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -104,13 +104,23 @@ public class MainMenuBuyer extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
         add(footerPanel, BorderLayout.SOUTH);
+
+        // Component listener to adjust the position of usernameLabel on window resize
+        this.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent e) {
+                int frameWidth = getWidth();
+                int labelWidth = usernameLabel.getPreferredSize().width;
+                usernameLabel.setBounds(frameWidth - labelWidth - 50, 20, labelWidth, 50); // 50px from the right side
+            }
+        });
     }
 
     /**
      * Method untuk membuat tombol dengan desain warna.
      */
-    private JButton createButton(String text, Color bgColor) {
+    private JButton createButton(String text, String iconPath, Color bgColor) {
         JButton button = new JButton(text);
+        button.setIcon(loadIcon(iconPath)); // Tambahkan ikon
         button.setFont(new Font("Arial", Font.BOLD, 18));
         button.setBackground(bgColor);
         button.setForeground(Color.WHITE);
@@ -118,6 +128,20 @@ public class MainMenuBuyer extends JFrame {
         button.setBorder(BorderFactory.createLineBorder(bgColor.darker(), 2));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Tambahkan kursor interaktif
         return button;
+    }
+
+    /**
+     * Method untuk memuat ikon dari path.
+     */
+    private ImageIcon loadIcon(String path) {
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource(path));
+            Image scaledImage = icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH); // Ukuran ikon diperbesar
+            return new ImageIcon(scaledImage);
+        } catch (Exception e) {
+            System.err.println("Error loading icon: " + e.getMessage());
+            return null;
+        }
     }
 
     public static void main(String[] args) {

@@ -14,7 +14,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableCellEditor;
 
-public class NavbarForm extends JFrame {
+public class FromBeliBarang extends JFrame {
     private JPanel cartPanel;
     private JTextField txtSearch;
     private JComboBox<String> comboFilter;
@@ -25,9 +25,9 @@ public class NavbarForm extends JFrame {
     private static String username;
     private JButton btnBeli;
 
-    public NavbarForm(String username) {
+    public FromBeliBarang(String username) {
+        setTitle("SpareMaster Application");
         this.username = username;
-        setTitle("Gudang Barang - Navbar");
         setSize(900, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -363,7 +363,7 @@ public class NavbarForm extends JFrame {
     }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new NavbarForm(username).setVisible(true);
+            new FromBeliBarang(username).setVisible(true);
         });
     }
 

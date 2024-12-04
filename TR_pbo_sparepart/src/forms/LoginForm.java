@@ -13,9 +13,10 @@ public class LoginForm extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
+    private JButton registerButton;
     private JLabel errorLabel;
     private String username;
-    
+
     public LoginForm() {
         setTitle("SpareMaster Application");
         setSize(400, 450); // Tinggi diperbesar untuk memberikan lebih banyak ruang
@@ -55,7 +56,6 @@ public class LoginForm extends JFrame {
         // Main Panel
         JPanel mainPanel = new JPanel();
         mainPanel.setBounds(0, 180, 500, 200);
-
         mainPanel.setLayout(null);
 
         JLabel usernameLabel = new JLabel("Username:");
@@ -85,12 +85,21 @@ public class LoginForm extends JFrame {
         mainPanel.add(errorLabel);
 
         loginButton = new JButton("Login");
-        loginButton.setBounds(160, 110, 100, 30);
+        loginButton.setBounds(80, 110, 100, 30);
         loginButton.setBackground(new Color(0, 153, 76)); // Hijau terang
         loginButton.setForeground(Color.WHITE);
         loginButton.setFocusPainted(false);
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
         mainPanel.add(loginButton);
+
+        // Register Button
+        registerButton = new JButton("Register");
+        registerButton.setBounds(190, 110, 100, 30); // Positioned next to Login button
+        registerButton.setBackground(new Color(0, 102, 204)); // Biru terang
+        registerButton.setForeground(Color.WHITE);
+        registerButton.setFocusPainted(false);
+        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
+        mainPanel.add(registerButton);
 
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -110,6 +119,14 @@ public class LoginForm extends JFrame {
                 } else {
                     errorLabel.setVisible(true);
                 }
+            }
+        });
+
+        registerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Redirect to RegisterForm or open a new registration form
+                // new RegisterForm().setVisible(true);
+                dispose();
             }
         });
 

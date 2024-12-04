@@ -13,8 +13,7 @@ public class MainMenuAdmin extends JFrame {
 
     public MainMenuAdmin(String username) {
         setTitle("SpareMaster Application");
-
-
+        
         // Ukuran frame relatif terhadap layar
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int frameWidth = screenSize.width / 2;
