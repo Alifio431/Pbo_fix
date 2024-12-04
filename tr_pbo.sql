@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 02, 2024 at 04:52 PM
+-- Generation Time: Dec 04, 2024 at 06:12 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,16 +31,15 @@ CREATE TABLE `akun` (
   `id_akun` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(50) NOT NULL,
-  `permission` enum('admin','user') NOT NULL
+  `permission` enum('admin','user') NOT NULL,
+  PRIMARY KEY (`id_akun`),
+  UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `akun`
 --
 
-INSERT INTO `akun` (`id_akun`, `username`, `password`, `permission`) VALUES
-(1, 'alifio', '6969', 'admin'),
-(2, 'farahan', '123', 'user');
 
 -- --------------------------------------------------------
 
@@ -55,17 +54,55 @@ CREATE TABLE `data_barang` (
   `kategori` varchar(50) NOT NULL,
   `harga` decimal(10,2) NOT NULL,
   `stok` int(11) NOT NULL,
-  `deskripsi_barang` text DEFAULT NULL
+  `deskripsi_barang` text DEFAULT NULL,
+  PRIMARY KEY (`id_barang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `data_barang`
 --
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `history_transaksi`
+--
+
+CREATE TABLE `history_transaksi` (
+  `id_penjualan` int(11) NOT NULL,
+  `id_akun` int(11) NOT NULL,
+  `id_barang` int(11) NOT NULL,
+  `nama_barang` varchar(100) NOT NULL,
+  `merk` varchar(50) NOT NULL,
+  `harga` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `total_harga` decimal(15,2) NOT NULL,
+  PRIMARY KEY (`id_penjualan`),
+  KEY `id_barang` (`id_barang`),
+  KEY `id_akun` (`id_akun`),
+  CONSTRAINT `history_transaksi_ibfk_1` FOREIGN KEY (`id_akun`) REFERENCES `akun` (`id_akun`),
+  CONSTRAINT `history_transaksi_ibfk_2` FOREIGN KEY (`id_barang`) REFERENCES `data_barang` (`id_barang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `history_transaksi`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `laporan_barang`
+--
+INSERT INTO `akun` (`id_akun`, `username`, `password`, `permission`) VALUES
+(1, 'alifio', '6969', 'admin'),
+(2, 'farahan', '123', 'user'),
+(3, 'farhan', '1212', 'user'),
+(4, 'master', '1212', 'admin');
+
 INSERT INTO `data_barang` (`id_barang`, `nama_barang`, `merk`, `kategori`, `harga`, `stok`, `deskripsi_barang`) VALUES
-(1, 'asd', 'asd', 'asd', 123.00, 0, 'asdkjaklsj'),
-(2, 'Piston', 'Alphine', 'Mesin dan Komponen Mesin', 500000.00, 100, 'Piston untuk mesin kendaraan, berkualitas tinggi.'),
-(3, 'Camshaft', 'Dunloop', 'Mesin dan Komponen Mesin', 1200000.00, 50, 'Camshaft untuk performa mesin yang optimal.'),
+(1, 'asd', 'asd', 'asd', 123.00, 67, 'asdkjaklsj'),
+(2, 'Piston', 'Alphine', 'Mesin dan Komponen Mesin', 500000.00, 86, 'Piston untuk mesin kendaraan, berkualitas tinggi.'),
+(3, 'Camshaft', 'Dunloop', 'Mesin dan Komponen Mesin', 1200000.00, 47, 'Camshaft untuk performa mesin yang optimal.'),
 (4, 'Crankshaft', 'Bosch', 'Mesin dan Komponen Mesin', 2000000.00, 30, 'Crankshaft untuk meningkatkan tenaga mesin.'),
 (5, 'Blok Mesin', 'Mitsubishi', 'Mesin dan Komponen Mesin', 3500000.00, 20, 'Blok mesin dengan material tahan lama.'),
 (6, 'Kopling', 'ZF', 'Sistem Transmisi', 450000.00, 200, 'Kopling untuk sistem transmisi manual kendaraan.'),
@@ -103,13 +140,11 @@ INSERT INTO `data_barang` (`id_barang`, `nama_barang`, `merk`, `kategori`, `harg
 (38, 'Knalpot Racing', 'HKS', 'Aksesori dan Performa', 2000000.00, 100, 'Knalpot racing untuk performa mesin yang lebih baik.'),
 (39, 'Stiker Kendaraan', '3M', 'Aksesori dan Performa', 50000.00, 500, 'Stiker kendaraan untuk modifikasi dan estetika.'),
 (40, 'Handle Rem', 'Brembo', 'Aksesori dan Performa', 600000.00, 150, 'Handle rem berkualitas untuk kendaraan performa tinggi.'),
-(41, 'Tutup Radiator', 'Mishimoto', 'Aksesori dan Performa', 250000.00, 300, 'Tutup radiator untuk meningkatkan efisiensi sistem pendingin.');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `laporan_barang`
---
+(41, 'Tutup Radiator', 'Mishimoto', 'Aksesori dan Performa', 250000.00, 300, 'Tutup radiator untuk meningkatkan efisiensi sistem pendingin.'),
+(43, 'asd', 'asd', 'asd', 123.00, 113, 'asd'),
+(44, 'asd', 'asd', 'asd', 123.00, 113, 'asd'),
+(45, 'qwe', 'qwe', 'qwe', 123.00, 113, 'qwe'),
+(46, 'Ban dalam ', 'Esparco', 'Ban dan Roda', 150000.00, 50, 'Ban dalam anti paku anti bocor garansi seumur hidup selama tidak kecelakaan');
 
 CREATE TABLE `laporan_barang` (
   `id_laporan` int(11) NOT NULL,
@@ -117,28 +152,24 @@ CREATE TABLE `laporan_barang` (
   `stok_barang` int(11) NOT NULL,
   `barang_masuk` int(11) NOT NULL,
   `barang_keluar` int(11) NOT NULL,
-  `jumlah_transaksi` decimal(15,2) NOT NULL
+  `jumlah_transaksi` decimal(15,2) NOT NULL,
+  PRIMARY KEY (`id_laporan`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `laporan_barang`
 --
 
-INSERT INTO `laporan_barang` (`id_laporan`, `id_barang`, `stok_barang`, `barang_masuk`, `barang_keluar`, `jumlah_transaksi`) VALUES
-(1, 1, 111, 0, 12, 1476.00),
-(2, 1, 98, 0, 13, 1599.00),
-(3, 1, 0, 0, 98, 12054.00),
-(5, 1, 0, 0, 1, 123.00);
+-- --------------------------------------------------------
 
---
 -- Indexes for dumped tables
---
 
 --
 -- Indexes for table `akun`
 --
 ALTER TABLE `akun`
-  ADD PRIMARY KEY (`id_akun`);
+  ADD PRIMARY KEY (`id_akun`),
+  ADD UNIQUE KEY `username` (`username`);
 
 --
 -- Indexes for table `data_barang`
@@ -147,45 +178,40 @@ ALTER TABLE `data_barang`
   ADD PRIMARY KEY (`id_barang`);
 
 --
+-- Indexes for table `history_transaksi`
+--
+ALTER TABLE `history_transaksi`
+  ADD PRIMARY KEY (`id_penjualan`),
+  ADD KEY `id_barang` (`id_barang`),
+  ADD KEY `id_akun` (`id_akun`);
+
+--
 -- Indexes for table `laporan_barang`
 --
 ALTER TABLE `laporan_barang`
-  ADD PRIMARY KEY (`id_laporan`),
-  ADD KEY `id_barang` (`id_barang`);
+  ADD PRIMARY KEY (`id_laporan`);
 
---
 -- AUTO_INCREMENT for dumped tables
---
 
 --
 -- AUTO_INCREMENT for table `akun`
 --
 ALTER TABLE `akun`
-  MODIFY `id_akun` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_akun` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `data_barang`
 --
 ALTER TABLE `data_barang`
-  MODIFY `id_barang` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id_barang` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
--- AUTO_INCREMENT for table `laporan_barang`
+-- AUTO_INCREMENT for table `history_transaksi`
 --
+ALTER TABLE `history_transaksi`
+  MODIFY `id_penjualan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=221;
+
 ALTER TABLE `laporan_barang`
-  MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `laporan_barang`
---
-ALTER TABLE `laporan_barang`
-  ADD CONSTRAINT `laporan_barang_ibfk_1` FOREIGN KEY (`id_barang`) REFERENCES `data_barang` (`id_barang`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

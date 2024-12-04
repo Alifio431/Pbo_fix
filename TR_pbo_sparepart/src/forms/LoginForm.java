@@ -124,8 +124,7 @@ public class LoginForm extends JFrame {
 
         registerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Redirect to RegisterForm or open a new registration form
-                // new RegisterForm().setVisible(true);
+                new RegistrasiForm().setVisible(true);
                 dispose();
             }
         });

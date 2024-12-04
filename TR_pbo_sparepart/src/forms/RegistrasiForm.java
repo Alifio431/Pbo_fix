@@ -27,7 +27,7 @@ public class RegistrasiForm extends JFrame {
 
         // Panel Judul
         JPanel titlePanel = new JPanel();
-        titlePanel.setBackground(new Color(0, 123, 255));
+        titlePanel.setBackground(new Color(255, 0, 0));
         titlePanel.setLayout(new BorderLayout());
         titlePanel.setPreferredSize(new Dimension(getWidth(), 60));
 
@@ -72,6 +72,12 @@ public class RegistrasiForm extends JFrame {
         registerButton.setForeground(Color.WHITE);
         registerButton.setFocusPainted(false);
 
+        JButton kembaliButton = new JButton("Kembali");
+        kembaliButton.setFont(new Font("Arial", Font.BOLD, 16));
+        kembaliButton.setBackground(Color.RED);
+        kembaliButton.setForeground(Color.WHITE);
+        kembaliButton.setFocusPainted(false);
+
         // Tambahkan Elemen ke Formulir
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -104,6 +110,15 @@ public class RegistrasiForm extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 3;
         formPanel.add(registerButton, gbc);
+
+        gbc.gridy = 4;
+        formPanel.add(kembaliButton, gbc);
+
+        JLabel footerLabel = new JLabel("© 2024 SpareMaster.co");
+        footerLabel.setBounds(20, 330, 200, 15); // Dipindahkan sesuai tinggi frame
+        footerLabel.setForeground(new Color(128, 128, 128)); // Abu-abu
+        footerLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        add(footerLabel);
 
         // Event Tombol Registrasi
         registerButton.addActionListener(new ActionListener() {
@@ -138,11 +153,18 @@ public class RegistrasiForm extends JFrame {
             }
         });
 
+        // Event Tombol Kembali
+        kembaliButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new LoginForm().setVisible(true);
+                dispose();
+            }
+        });
+
         // Tambahkan panel ke frame
         add(titlePanel, BorderLayout.NORTH);
         add(formPanel, BorderLayout.CENTER);
-
-
     }
 
     private boolean saveAccountToDatabase(String username, String password, String permission) {
