@@ -99,7 +99,7 @@ public class FormBarang extends JFrame {
 
         btnSimpan.addActionListener(e -> {
             simpanBarang();
-           
+
         });
         btnKembali.addActionListener(e -> {
             new MainMenuAdmin(username).setVisible(true);
@@ -141,7 +141,7 @@ public class FormBarang extends JFrame {
     private void insertToLaporanBarang(int stokBarang) throws SQLException {
         String getLastIdQuery = "SELECT id_barang FROM data_barang ORDER BY id_barang DESC LIMIT 1";
         String insertQuery = "INSERT INTO laporan_barang (id_barang, stok_barang, barang_masuk, barang_keluar, jumlah_transaksi) VALUES (?, ?, ?, ?, ?)";
-        
+
         try (Connection conn = koneksi.getConnection()) {
             // Get the latest id_barang
             int lastId;
@@ -153,15 +153,15 @@ public class FormBarang extends JFrame {
                     throw new SQLException("Failed to get last inserted ID");
                 }
             }
-    
+
             // Insert into laporan_barang
             try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-                insertStmt.setInt(1, lastId + 1);        // The ID from the latest inserted barang
-                insertStmt.setInt(2, stokBarang);    // Current stock level
-                insertStmt.setInt(3, stokBarang);    // Initial stock entry counts as items coming in
-                insertStmt.setInt(4, 0);             // No items have left yet
-                insertStmt.setInt(5, 0);             // No transactions yet
-    
+                insertStmt.setInt(1, lastId);
+                insertStmt.setInt(2, stokBarang);
+                insertStmt.setInt(3, stokBarang);
+                insertStmt.setInt(4, 0);
+                insertStmt.setInt(5, 0);
+
                 insertStmt.executeUpdate();
             }
         }
@@ -170,52 +170,52 @@ public class FormBarang extends JFrame {
     private void simpanBarang() {
         try {
             // Validation check
-            if (txtNamaBarang.getText().isEmpty() || txtMerk.getText().isEmpty() || 
-                txtKategori.getText().isEmpty() || txtHarga.getText().isEmpty() || 
-                txtStok.getText().isEmpty() || txtDeskripsi.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Semua field harus diisi!", 
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            if (txtNamaBarang.getText().isEmpty() || txtMerk.getText().isEmpty() ||
+                    txtKategori.getText().isEmpty() || txtHarga.getText().isEmpty() ||
+                    txtStok.getText().isEmpty() || txtDeskripsi.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Semua field harus diisi!",
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-    
+
             double harga;
             int stok;
-    
+
             try {
                 harga = Double.parseDouble(txtHarga.getText());
                 stok = Integer.parseInt(txtStok.getText());
-    
+
                 // Additional validation: Price and Stock must be greater than 0
                 if (harga <= 0) {
-                    JOptionPane.showMessageDialog(this, "Harga barang harus lebih besar dari 0!", 
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Harga barang harus lebih besar dari 0!",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-    
+
                 if (stok <= 0) {
-                    JOptionPane.showMessageDialog(this, "Stok barang harus lebih besar dari 0!", 
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Stok barang harus lebih besar dari 0!",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-    
+
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Harga harus berupa angka dan stok harus bilangan bulat!", 
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Harga harus berupa angka dan stok harus bilangan bulat!",
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-    
+
             try (Connection conn = koneksi.getConnection()) {
                 // Start transaction
                 conn.setAutoCommit(false);
-                
+
                 try {
                     // Insert into data_barang
                     String sql = "INSERT INTO data_barang (nama_barang, merk, kategori, harga, stok, deskripsi_barang) " +
-                               "VALUES (?, ?, ?, ?, ?, ?)";
-    
+                            "VALUES (?, ?, ?, ?, ?, ?)";
+
                     PreparedStatement stmt = conn.prepareStatement(sql);
                     String namaBarang = txtNamaBarang.getText();
-                    
+
                     stmt.setString(1, namaBarang);
                     stmt.setString(2, txtMerk.getText());
                     stmt.setString(3, txtKategori.getText());
@@ -223,14 +223,14 @@ public class FormBarang extends JFrame {
                     stmt.setInt(5, stok);
                     stmt.setString(6, txtDeskripsi.getText());
                     stmt.executeUpdate();
-    
+
                     // Insert into laporan_barang using nama_barang
                     insertToLaporanBarang(stok);
-    
+
                     // Commit the transaction
                     conn.commit();
                     JOptionPane.showMessageDialog(this, "Barang berhasil disimpan!");
-                    
+
                     this.dispose();
                     new MainMenuAdmin(username).setVisible(true);
                     // Clear the form fields after successful save
@@ -245,11 +245,11 @@ public class FormBarang extends JFrame {
                 }
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Gagal menyimpan barang: " + ex.getMessage(), 
-                "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan barang: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new FormBarang(username).setVisible(true));
