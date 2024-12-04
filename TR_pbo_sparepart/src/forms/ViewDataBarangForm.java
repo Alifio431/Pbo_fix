@@ -121,13 +121,13 @@ public class ViewDataBarangForm extends JFrame {
     // Method Update Barang
     private void updateBarang() {
         int selectedRow = table.getSelectedRow();
-
+    
         // Validasi jika tidak ada baris yang dipilih
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Pilih baris yang akan diupdate.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
+    
         // Ambil data dari baris yang dipilih
         int idBarang = (int) tableModel.getValueAt(selectedRow, 0);
         String currentNamaBarang = (String) tableModel.getValueAt(selectedRow, 1);
@@ -136,7 +136,7 @@ public class ViewDataBarangForm extends JFrame {
         double currentHarga = (double) tableModel.getValueAt(selectedRow, 4);
         int currentStok = (int) tableModel.getValueAt(selectedRow, 5);
         String currentDeskripsi = (String) tableModel.getValueAt(selectedRow, 6);
-
+    
         // Panel form dialog
         JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
         JTextField txtNamaBarang = new JTextField(currentNamaBarang);
@@ -145,7 +145,7 @@ public class ViewDataBarangForm extends JFrame {
         JTextField txtHarga = new JTextField(String.valueOf(currentHarga));
         JTextField txtStok = new JTextField(String.valueOf(currentStok));
         JTextField txtDeskripsi = new JTextField(currentDeskripsi);
-
+    
         panel.add(new JLabel("Nama Barang:"));
         panel.add(txtNamaBarang);
         panel.add(new JLabel("Merk:"));
@@ -158,10 +158,10 @@ public class ViewDataBarangForm extends JFrame {
         panel.add(txtStok);
         panel.add(new JLabel("Deskripsi Barang:"));
         panel.add(txtDeskripsi);
-
+    
         // Menampilkan dialog untuk input data baru
         int result = JOptionPane.showConfirmDialog(this, panel, "Update Data Barang", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
+    
         // Jika pengguna menekan OK
         if (result == JOptionPane.OK_OPTION) {
             try {
@@ -171,13 +171,24 @@ public class ViewDataBarangForm extends JFrame {
                 double newHarga = Double.parseDouble(txtHarga.getText().trim());
                 int newStok = Integer.parseInt(txtStok.getText().trim());
                 String newDeskripsi = txtDeskripsi.getText().trim();
-
+    
                 // Validasi input kosong
                 if (newNamaBarang.isEmpty() || newMerk.isEmpty() || newKategori.isEmpty() || newDeskripsi.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Semua kolom harus diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-
+    
+                // Validasi harga dan stok harus lebih besar dari 0
+                if (newHarga <= 0) {
+                    JOptionPane.showMessageDialog(this, "Harga harus lebih besar dari 0.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+    
+                if (newStok <= 0) {
+                    JOptionPane.showMessageDialog(this, "Stok harus lebih besar dari 0.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+    
                 // Query untuk update data
                 String query = "UPDATE data_barang SET nama_barang=?, merk=?, kategori=?, harga=?, stok=?, deskripsi_barang=? WHERE id_barang=?";
                 PreparedStatement pstmt = conn.prepareStatement(query);
@@ -188,7 +199,7 @@ public class ViewDataBarangForm extends JFrame {
                 pstmt.setInt(5, newStok);
                 pstmt.setString(6, newDeskripsi);
                 pstmt.setInt(7, idBarang);
-
+    
                 // Eksekusi update
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
@@ -201,10 +212,13 @@ public class ViewDataBarangForm extends JFrame {
                 JOptionPane.showMessageDialog(this, "Harga dan stok harus berupa angka yang valid.", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengupdate data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Terjadi kesalahan yang tidak terduga: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-
+    
+    
 
 
     // Method Hapus Barang
@@ -214,7 +228,7 @@ public class ViewDataBarangForm extends JFrame {
             JOptionPane.showMessageDialog(this, "Pilih baris yang akan dihapus");
             return;
         }
-
+    
         int konfirmasi = JOptionPane.showConfirmDialog(this, "Apakah Anda yakin ingin menghapus data ini?", "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
         if (konfirmasi == JOptionPane.YES_OPTION) {
             try {
@@ -222,16 +236,22 @@ public class ViewDataBarangForm extends JFrame {
                 String query = "DELETE FROM data_barang WHERE id_barang=?";
                 PreparedStatement pstmt = conn.prepareStatement(query);
                 pstmt.setInt(1, idBarang);
-
-                if (pstmt.executeUpdate() > 0) {
+    
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows > 0) {
                     JOptionPane.showMessageDialog(this, "Data berhasil dihapus");
-                    loadDataBarang();
+                    loadDataBarang(); // Refresh tabel
+                } else {
+                    JOptionPane.showMessageDialog(this, "Tidak ada data yang dihapus.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
                 }
             } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Gagal menghapus data: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Gagal menghapus data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Terjadi kesalahan yang tidak terduga: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
+    
 
     @Override
     public void dispose() {
